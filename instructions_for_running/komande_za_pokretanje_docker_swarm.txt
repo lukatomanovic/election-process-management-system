@@ -1,0 +1,33 @@
+docker service create --name registry --replicas 1 --publish 5000:5000 registry:2
+
+docker tag user 192.168.65.3:5000/user
+docker tag electiondbmigration 192.168.65.3:5000/electiondbmigration
+docker tag demon 192.168.65.3:5000/demon
+docker tag authenticationdbmigration 192.168.65.3:5000/authenticationdbmigration
+docker tag authentication 192.168.65.3:5000/authentication
+docker tag administrator 192.168.65.3:5000/administrator
+
+docker push 192.168.65.3:5000/user
+docker push 192.168.65.3:5000/electiondbmigration
+docker push 192.168.65.3:5000/demon
+docker push 192.168.65.3:5000/authenticationdbmigration
+docker push 192.168.65.3:5000/authentication
+docker push 192.168.65.3:5000/administrator
+
+
+docker pull 192.168.65.3:5000/user
+docker pull 192.168.65.3:5000/electiondbmigration
+docker pull 192.168.65.3:5000/demon
+docker pull 192.168.65.3:5000/authenticationdbmigration
+docker pull 192.168.65.3:5000/authentication
+docker pull 192.168.65.3:5000/administrator
+
+
+docker tag 192.168.65.3:5000/user user
+docker tag 192.168.65.3:5000/electiondbmigration electiondbmigration
+docker tag 192.168.65.3:5000/demon demon
+docker tag 192.168.65.3:5000/authenticationdbmigration authenticationdbmigration
+docker tag 192.168.65.3:5000/authentication authentication
+docker tag 192.168.65.3:5000/administrator administrator
+
+docker stack deploy -c .\stack.yaml moj_stek

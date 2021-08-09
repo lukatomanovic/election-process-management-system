@@ -1,0 +1,129 @@
+(venv) C:\Users\tl180410\Desktop\SZUIP\tests>python main.py --help
+usage: main.py [-h] [--authentication-address AUTHENTICATION_ADDRESS] [--jwt-secret JWT_SECRET] [--roles-field ROLES_FIELD] [--user-role USER_ROLE] [--administrator-role ADMINISTRATOR_ROLE]
+               [--administrator-address ADMINISTRATOR_ADDRESS] [--with-authentication] [--individual-ids INDIVIDUAL_IDS INDIVIDUAL_IDS INDIVIDUAL_IDS]
+               [--political-party-ids POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS] [--station-address STATION_ADDRESS] [--presidential-election-id PRESIDENTIAL_ELECTION_ID]
+               [--presidential-election-start PRESIDENTIAL_ELECTION_START] [--presidential-election-end PRESIDENTIAL_ELECTION_END] [--parliamentary-election-id PARLIAMENTARY_ELECTION_ID]
+               [--parliamentary-election-start PARLIAMENTARY_ELECTION_START] [--parliamentary-election-end PARLIAMENTARY_ELECTION_END] [--election-official-jmbg ELECTION_OFFICIAL_JMBG] --type
+               {authentication,participant,election,vote,without-authentication,all}
+
+IEP project grading tests.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --authentication-address AUTHENTICATION_ADDRESS
+                        Address of the authentication container.
+  --jwt-secret JWT_SECRET
+                        JWT secret used to encode JWT tokens.
+  --roles-field ROLES_FIELD
+                        Name of the field used to store role information in JWT token.
+  --user-role USER_ROLE
+                        Value which represents the user role.
+  --administrator-role ADMINISTRATOR_ROLE
+                        Value which represents the administrator role.
+  --administrator-address ADMINISTRATOR_ADDRESS
+                        Address of the administrator container.
+  --with-authentication
+                        Value which indicates if requests should include authorization header.
+  --individual-ids INDIVIDUAL_IDS INDIVIDUAL_IDS INDIVIDUAL_IDS
+                        IDs of individual participants (exactly 3), if specified creation of individual participants will be skipped in tests.
+  --political-party-ids POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS POLITICAL_PARTY_IDS
+                        IDs of political parties (exactly 5), if specified creation of political parties will be skipped in tests.
+  --station-address STATION_ADDRESS
+                        Address of the station container.
+  --presidential-election-id PRESIDENTIAL_ELECTION_ID
+                        ID of a presidential election that is already stored in the database.
+  --presidential-election-start PRESIDENTIAL_ELECTION_START
+                        ISO string representing the start of a presidential election that is already stored in the database.
+  --presidential-election-end PRESIDENTIAL_ELECTION_END
+                        ISO string representing the end of a presidential election that is already stored in the database.
+  --parliamentary-election-id PARLIAMENTARY_ELECTION_ID
+                        ID of a parliamentary election that is already stored in the database.
+  --parliamentary-election-start PARLIAMENTARY_ELECTION_START
+                        ISO string representing the start of a parliamentary election that is already stored in the database.
+  --parliamentary-election-end PARLIAMENTARY_ELECTION_END
+                        ISO string representing the end of a parliamentary election that is already stored in the database.
+  --election-official-jmbg ELECTION_OFFICIAL_JMBG
+                        String representing the JMBG of the election official.
+  --type {authentication,participant,election,vote,without-authentication,all}
+                        Specifies which tests will be run. Each test requires a different set of parameters. Before running each scenario ensure that an admin user is stored in the databasei. Following scenarios are supported:
+                        1) Value "all" is used for running all tests. Following parameters are required:
+                                --authentication-address
+                                --jwt-secret
+                                --roles-field
+                                --user-role
+                                --admin-role
+                                --administrator-address
+                                --station-address
+                                --with-authentication
+
+                                Example:
+                                python main.py --type all --authentication-address http://127.0.0.1:5003 --jwt-secret JWT_SECRET_KEY --roles-field role --administrator-role administrator --user-role zvanicnik --administrator-address http://127.0.0.1:5001 --station-address http://127.0.0.1:5002 --with-authentication
+
+                        2) Value "without-authentication" is used for running all tests except the ones regarding authentication container. Following parameters are required:
+                                --authentication-address
+                                --jwt-secret
+                                --roles-field
+                                --user-role
+                                --admin-role
+
+                                Example:
+                                python main.py --type without-authentication --administrator-address http://127.0.0.1:5001 --station-address http://127.0.0.1:5002
+
+                        3) Value "participants" is used for running tests which grade endpoints that create and retrieve participants. For these tests you can specify the following parameters:
+                                --administrator-address
+                                --with-authentication (if this is not present the penalty is 0.1 * score)
+                                --authentication-address (if --with-authentication is present this argument is used to specify the address of the authentication container)
+                                --individual-ids
+                                --political-party-ids
+
+                                To test both endpoints or just the create endpoint you can use the following example command:
+                                python main.py --type participant --administrator-address http://127.0.0.1:5001 --with-authentication --authentication-address http://127.0.0.1:5000
+
+                                To test just the retrieve endpoint you can use the following example command. Numbers 571, 572 and 573 represent ids of existing individual participants and the numbers 574, 575, 576, 577 and 578 repr
+esent the ids of existing political parties.
+                                python main.py --type participant --administrator-address http://127.0.0.1:5001 --with-authentication --authentication-address http://127.0.0.1:5000 --individual-ids 571 572 573 --political-party-ids
+574 575 576 577 578
+
+                        4) Value "election" is used for running the tests which grade endpoints that create and retrieve elections. For these tests you can specify the following parameters:
+                                --administrator-address
+                                --with-authentication (if this is not present the penalty is 0.1 * score)
+                                --authentication-address (if --with-authentication is present this argument is used to specify the address of the authentication container)
+                                --individual-ids
+                                --political-party-ids
+                                --presidential-election-start
+                                --presidential-election-end
+                                --parliamentary-election-start
+                                --parliamentary-election-end
+
+                                To test both endpoints or just the create endpoint you can use the following example command:
+                                python main.py --type election --administrator-address http://127.0.0.1:5001 --with-authentication --authentication-address http://127.0.0.1:5000
+
+                                The tests rely on endpoints for creating and retrieving participants. However, if these are not implemented you can manually add participants in the database and use the following example command to r
+un the tests. Numbers 595, 596 and 597 represent the ids of individual participants and the numbers 598, 599, 600, 601 and 602 represent the ids of political parties.
+                                python main.py --type election --administrator-address http://127.0.0.1:5001 --with-authentication --authentication-address http://127.0.0.1:5000 --individual-ids 595 596 597 --political-party-ids 598
+ 599 600 601 602
+
+                                To test just the retrieve endpoint you can use the following command:
+                                python main.py --type election --administrator-address http://127.0.0.1:5001 --with-authentication --authentication-address http://127.0.0.1:5000 --individual-ids 595 596 597 --political-party-ids 598
+ 599 600 601 602 --presidential-election-start 2021-07-04T15:38:53 --presidential-election-end 2021-07-04T15:39:23 --parliamentary-election-start 2021-07-04T15:39:24 --parliamentary-election-end  2021-07-04T15:39:54
+
+                        5) Value "vote" is used for running tests which grade endpoints for voting and retrieving election results. For these tests you can specify the following parameters:
+                                --administrator-address
+                                --station-address
+                                --with-authentication (if this is not present the penalty is 0.1 * score)
+                                --authentication-address (if --with-authentication is present this argument is used to specify the address of the authentication container)
+                                --presidential-election-id
+                                --presidential-election-start
+                                --presidential-election-end
+                                --parliamentary-election-id
+                                --parliamentary-election-start
+                                --parliamentary-election-end
+
+                                To test both endpoints you can use the following example command:
+                                python main.py --type vote --administrator-address http://127.0.0.1:5001 --station-address http://127.0.0.1:5002 --with-authentication --authentication-address http://127.0.0.1:5000
+
+                                The tests rely on endpoints for creating and retrieving participants and elections. However, if these are not implemented you can manually add elections in the database and use the following example c
+ommand to run the tests:
+                                python main.py --type vote --administrator-address http://127.0.0.1:5001 --station-address http://127.0.0.1:5002 --with-authentication --authentication-address http://127.0.0.1:5000 --presidential-ele
+ction-id 92 --presidential-election-start 2021-07-04T16:10:00 --presidential-election-end 2021-07-04T16:10:30 --parliamentary-election-id 93 --parliamentary-election-start 2021-07-04T16:11:00 --parliamentary-election-end  2021-07-04
+T16:11:30

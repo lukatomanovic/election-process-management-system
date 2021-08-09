@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+  authenticationDB:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    volumes:
+    - dbauthenticationdata:/var/lib/mysql
+    networks:
+      - authenticationnet
+  authenticationDBMigration:
+    image: authenticationdbmigration
+    environment:
+      - DATABASE_URL=authenticationDB
+    depends_on:
+      authenticationDB:
+        condition: service_healthy
+    networks:
+        - authenticationnet
+  authentication:
+    image: authentication
+    environment:
+      - DATABASE_URL=authenticationDB
+    depends_on:
+      - authenticationDBMigration
+    ports:
+      - 5003:5003
+    networks:
+      - authenticationnet
+
+
+  electionDB:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+    volumes:
+      - dbelectiondata:/var/lib/mysql
+    networks:
+      - electiondbnet
+
+  electionDBMigration:
+    image: electiondbmigration
+    environment:
+      - DATABASE_URL=electionDB
+    depends_on:
+      electionDB:
+        condition: service_healthy
+    networks:
+      - electiondbnet
+
+  administrator:
+    image: administrator
+    environment:
+      - DATABASE_URL=electionDB
+    depends_on:
+      - electionDBMigration
+    ports:
+      - 5001:5001
+    networks:
+      - electiondbnet
+
+  redis:
+    image: redis
+    networks:
+      - redisnet
+
+  voting_official:
+    image: user
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    ports:
+      - 5002:5002
+    networks:
+      - redisnet
+
+  demon:
+    image: demon
+    environment:
+      - DATABASE_URL=electionDB
+      - REDIS_HOST=redis
+    depends_on:
+      - electionDBMigration
+      - redis
+    networks:
+      - electiondbnet
+      - redisnet
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - electiondbnet
+      - authenticationnet
+
+volumes:
+  dbauthenticationdata:
+  dbelectiondata:
+networks:
+  authenticationnet:
+  electiondbnet:
+  redisnet:
